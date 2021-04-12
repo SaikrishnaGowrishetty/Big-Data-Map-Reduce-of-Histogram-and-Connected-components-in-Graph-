@@ -1,0 +1,28 @@
+drop table Histogram;
+create table Histogram (
+red int,
+blue int,
+green int)
+row format delimited fields terminated by ',' stored as textfile;
+
+load data local inpath '${hiveconf:P}' overwrite into table Histogram;
+
+create temporary table temp(
+color int,
+intensity int
+);
+
+
+Insert overwrite table temp
+select 1,red
+from Histogram
+union all
+select 2,blue
+from Histogram
+union all
+select 3,green
+from Histogram;
+
+select concat(cast(color as string),' ',cast(intensity as string)),count(1)
+from temp
+group by concat(cast(color as string),' ',cast(intensity as string));
